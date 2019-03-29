@@ -4,7 +4,7 @@ import TableCountries from "../components/table/TableCountries";
 const Home = () => {
   return (
     <div>
-      <h2>Hello! Start your search here</h2>
+      <h2 style={{ marginTop: "10vh" }}>Hello! Find the holidays here:</h2>
       <TableCountries />
     </div>
   );

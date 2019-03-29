@@ -4,6 +4,6 @@ import Home from "./containers/Home";
 
 export default () => (
   <Switch>
-    <Route path="/home" component={Home} />
+    <Route path="/" component={Home} />
   </Switch>
 );

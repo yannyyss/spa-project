@@ -12,19 +12,23 @@ import {
   TableRow
 } from "@material-ui/core";
 import axios from "axios";
-import jsonData from "../../data/data.json";
-import countriesData from "../../data/countries.json";
+import "./TableCountries.css";
 
 const TableCountries = () => {
   const [dataState, setDataState] = useState({});
   const [countriesState, setCountriesState] = useState({});
+  const [yearState, setYearState] = useState({
+    years: ["2017", "2018", "2019"]
+  });
   const [queryCountryCode, setQueryCountryCode] = useState("");
+  const [queryYearCode, setQueryYearCode] = useState("");
 
   useEffect(() => {
-    if (queryCountryCode !== "") {
+    if ((queryCountryCode !== "") & (queryYearCode !== "")) {
       axios
         .post(`http://localhost:3000/api/holidays`, {
-          countryCode: queryCountryCode
+          countryCode: queryCountryCode,
+          yearCode: queryYearCode
         })
 
         .then(res => {
@@ -34,8 +38,6 @@ const TableCountries = () => {
         })
         .catch(e => {
           console.log(e);
-          const data = jsonData;
-          setDataState({ data });
         });
     }
 
@@ -48,15 +50,21 @@ const TableCountries = () => {
       })
       .catch(e => {
         console.log(e);
-        //setCountriesState({ countries });
       });
-  }, [queryCountryCode]);
+  }, [queryCountryCode, queryYearCode]);
 
   const getCountryQuery = e => {
     const value = e.target.value;
     console.log("key:", value);
     setQueryCountryCode(value);
   };
+
+  const getYearQuery = e => {
+    const value = e.target.value;
+    console.log(value);
+    setQueryYearCode(value);
+  };
+
   return (
     <div>
       {countriesState.res
@@ -65,41 +73,113 @@ const TableCountries = () => {
       {dataState.data
         ? console.log("data :)" + dataState.data)
         : console.log("data :(" + dataState.data)}
-      <FormControl>
-        <InputLabel>Countries</InputLabel>
-        {countriesState.res ? (
-          <Select value={countriesState.res} onChange={getCountryQuery}>
-            {countriesState.res.map((detail, index) => {
+      <div
+        style={{
+          margin: "auto",
+          maxWidth: "400px",
+          padding: "2vh 50px",
+          display: "flex",
+          justifyContent: "space-between"
+        }}
+      >
+        <FormControl>
+          <InputLabel>Countries</InputLabel>
+          {countriesState.res ? (
+            <Select
+              value={queryCountryCode}
+              onChange={getCountryQuery}
+              style={{ width: "100px" }}
+            >
+              {countriesState.res.map((detail, index) => {
+                return (
+                  <MenuItem key={index} value={detail.key}>
+                    <ListItemText primary={detail.key} value={detail.key} />
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          ) : null}
+        </FormControl>
+
+        <FormControl>
+          <InputLabel>Year</InputLabel>
+          <Select
+            value={queryYearCode}
+            onChange={getYearQuery}
+            style={{ width: "100px" }}
+          >
+            {yearState.years.map((detail, index) => {
               return (
-                <MenuItem key={index} value={detail.key}>
-                  <ListItemText primary={detail.key} value={detail.key} />
+                <MenuItem key={index} value={detail}>
+                  <ListItemText primary={detail} value={detail} />
                 </MenuItem>
               );
             })}
           </Select>
-        ) : null}
-      </FormControl>
+        </FormControl>
+      </div>
 
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Event</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {dataState.data
-            ? dataState.data.map((detail, index) => {
-                return (
-                  <TableRow>
-                    <TableCell>{detail.date}</TableCell>
-                    <TableCell>{detail.name}</TableCell>
-                  </TableRow>
-                );
-              })
-            : null}
-        </TableBody>
-      </Table>
+      {dataState.data ? (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "600px",
+            margin: "auto",
+            marginTop: "2vh"
+          }}
+        >
+          <Table>
+            <TableHead style={{ backgroundColor: "#000" }}>
+              <TableRow>
+                <TableCell
+                  style={{
+                    textAlign: "left",
+                    color: "#fff",
+                    paddingLeft: "50px"
+                  }}
+                >
+                  Date
+                </TableCell>
+                <TableCell
+                  style={{
+                    textAlign: "right",
+                    color: "#fff",
+                    paddingRight: "50px"
+                  }}
+                >
+                  Event
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {dataState.data
+                ? dataState.data.map((detail, index) => {
+                    return (
+                      <TableRow key={index} className="table-color">
+                        <TableCell
+                          style={{
+                            textAlign: "left",
+                            paddingLeft: "50px"
+                          }}
+                        >
+                          {detail.date}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            textAlign: "right",
+                            paddingRight: "50px"
+                          }}
+                        >
+                          {detail.name}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                : null}
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
     </div>
   );
 };

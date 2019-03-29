@@ -1,0 +1,6 @@
+.table-color:nth-child(even) {
+  background: #eee;
+}
+.table-color:nth-child(odd) {
+  background: #fff;
+}
