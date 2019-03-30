@@ -17,7 +17,12 @@ import moment from "moment";
 
 const TableCountries = () => {
   const [dataState, setDataState] = useState({});
-  const [countriesState, setCountriesState] = useState({});
+  const [countriesState] = useState({
+    countries: [
+      { label: "Mexico - MX", value: "MX" },
+      { label: "Estados Unidos - US", value: "US" }
+    ]
+  });
   const [yearState] = useState({
     years: [2019, 2020, 2021]
   });
@@ -62,16 +67,6 @@ const TableCountries = () => {
           console.log(e);
         });
     }
-
-    axios
-      .get("https://spaback.herokuapp.com/api/all")
-      .then(response => {
-        const res = response.data;
-        setCountriesState({ res: res });
-      })
-      .catch(e => {
-        console.log(e);
-      });
   }, [queryCountryCode, queryYearCode, monthVariable]);
 
   const getCountryQuery = e => {
@@ -105,21 +100,19 @@ const TableCountries = () => {
       >
         <FormControl>
           <InputLabel>Countries</InputLabel>
-          {countriesState.res ? (
-            <Select
-              value={queryCountryCode}
-              onChange={getCountryQuery}
-              style={{ width: "100px" }}
-            >
-              {countriesState.res.map((detail, index) => {
-                return (
-                  <MenuItem key={index} value={detail.key}>
-                    <ListItemText primary={detail.key} value={detail.key} />
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          ) : null}
+          <Select
+            value={queryCountryCode}
+            onChange={getCountryQuery}
+            style={{ width: "170px" }}
+          >
+            {countriesState.countries.map((detail, index) => {
+              return (
+                <MenuItem key={index} value={detail.value}>
+                  <ListItemText primary={detail.label} value={detail.value} />
+                </MenuItem>
+              );
+            })}
+          </Select>
         </FormControl>
 
         <FormControl>
