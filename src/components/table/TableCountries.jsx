@@ -13,27 +13,49 @@ import {
 } from "@material-ui/core";
 import axios from "axios";
 import "./TableCountries.css";
+import moment from "moment";
 
 const TableCountries = () => {
   const [dataState, setDataState] = useState({});
   const [countriesState, setCountriesState] = useState({});
-  const [yearState, setYearState] = useState({
-    years: ["2017", "2018", "2019"]
+  const [yearState] = useState({
+    years: [2019, 2020, 2021]
+  });
+  const [monthsState] = useState({
+    months: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ]
   });
   const [queryCountryCode, setQueryCountryCode] = useState("");
   const [queryYearCode, setQueryYearCode] = useState("");
+  const [monthVariable, setMonthVariable] = useState("");
 
   useEffect(() => {
-    if ((queryCountryCode !== "") & (queryYearCode !== "")) {
+    if (
+      (queryCountryCode !== "") &
+      (queryYearCode !== "") &
+      (monthVariable !== "")
+    ) {
       axios
-        .post(`http://localhost:3000/api/holidays`, {
+        .post(`https://spaback.herokuapp.com/api/holidays`, {
           countryCode: queryCountryCode,
           yearCode: queryYearCode
         })
 
         .then(res => {
           const data = res.data;
-          console.log("holidays from back:", data);
+
           setDataState({ data });
         })
         .catch(e => {
@@ -42,37 +64,36 @@ const TableCountries = () => {
     }
 
     axios
-      .get("http://localhost:3000/api/all")
+      .get("https://spaback.herokuapp.com/api/all")
       .then(response => {
-        console.log("info:", response.data);
         const res = response.data;
         setCountriesState({ res: res });
       })
       .catch(e => {
         console.log(e);
       });
-  }, [queryCountryCode, queryYearCode]);
+  }, [queryCountryCode, queryYearCode, monthVariable]);
 
   const getCountryQuery = e => {
     const value = e.target.value;
-    console.log("key:", value);
+
     setQueryCountryCode(value);
   };
 
   const getYearQuery = e => {
     const value = e.target.value;
-    console.log(value);
+
     setQueryYearCode(value);
+  };
+
+  const getMonth = e => {
+    const value = e.target.value;
+
+    setMonthVariable(value);
   };
 
   return (
     <div>
-      {countriesState.res
-        ? console.log("countries :)" + countriesState.res)
-        : console.log("countries :(" + countriesState.res)}
-      {dataState.data
-        ? console.log("data :)" + dataState.data)
-        : console.log("data :(" + dataState.data)}
       <div
         style={{
           margin: "auto",
@@ -117,6 +138,23 @@ const TableCountries = () => {
             })}
           </Select>
         </FormControl>
+
+        <FormControl>
+          <InputLabel>Months</InputLabel>
+          <Select
+            value={monthVariable}
+            onChange={getMonth}
+            style={{ width: "100px" }}
+          >
+            {monthsState.months.map((detail, index) => {
+              return (
+                <MenuItem key={index} value={detail}>
+                  <ListItemText primary={detail} value={detail} />
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
       </div>
 
       {dataState.data ? (
@@ -153,28 +191,32 @@ const TableCountries = () => {
             </TableHead>
             <TableBody>
               {dataState.data
-                ? dataState.data.map((detail, index) => {
-                    return (
-                      <TableRow key={index} className="table-color">
-                        <TableCell
-                          style={{
-                            textAlign: "left",
-                            paddingLeft: "50px"
-                          }}
-                        >
-                          {detail.date}
-                        </TableCell>
-                        <TableCell
-                          style={{
-                            textAlign: "right",
-                            paddingRight: "50px"
-                          }}
-                        >
-                          {detail.name}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
+                ? dataState.data
+                    .filter(
+                      item => monthVariable === moment(item.date).format("MMMM")
+                    )
+                    .map((detail, index) => {
+                      return (
+                        <TableRow key={index} className="table-color">
+                          <TableCell
+                            style={{
+                              textAlign: "left",
+                              paddingLeft: "50px"
+                            }}
+                          >
+                            {detail.date}
+                          </TableCell>
+                          <TableCell
+                            style={{
+                              textAlign: "right",
+                              paddingRight: "50px"
+                            }}
+                          >
+                            {detail.name}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                 : null}
             </TableBody>
           </Table>
